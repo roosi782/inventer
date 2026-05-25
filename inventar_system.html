@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📦 Inventarliste</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#E53935;--red-light:#FFEBEE;
+  --green:#1E8B4F;--green-light:#E8F5E9;
+  --blue:#1565C0;--blue-light:#E3F2FD;
+  --gold:#F9A825;--gold-light:#FFFDE7;
+  --orange:#F4511E;--orange-light:#FBE9E7;
+  --dark:#0F172A;--mid:#1E293B;
+  --surface:#F1F5F9;--card:#FFFFFF;
+  --text:#0F172A;--muted:#64748B;--border:#E2E8F0;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.06);
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background:linear-gradient(135deg,#1A1A2E 0%,#2D2D44 50%,#1A1A2E 100%);}
+.login-box{background:#fff;border-radius:24px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-logo{font-size:40px;text-align:center;margin-bottom:8px;}
+.login-title{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:24px;text-align:center;margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px;}
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-row input,.form-row select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border 0.2s;}
+.form-row input:focus,.form-row select:focus{border-color:var(--blue);}
+#login-error{display:none;background:#FEE2E2;color:#DC2626;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:center;}
+
+/* APP */
+#app{display:none;}
+header{background:linear-gradient(135deg,#0A0F1E,#1A1F35);padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:62px;}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:18px;color:#fff;}
+.logo span{color:#F9A825;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.user-badge{background:rgba(255,255,255,0.1);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;}
+.btn-logout{background:rgba(229,57,53,0.2);color:#EF9A9A;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+.btn-logout:hover{background:rgba(229,57,53,0.35);}
+
+main{padding:24px 20px;max-width:1300px;margin:0 auto;}
+.page-title{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:26px;margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:20px;}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+.stat-card.red{border-top:3px solid var(--red);}
+.stat-card.gold{border-top:3px solid var(--gold);}
+.stat-card.green{border-top:3px solid var(--green);}
+.stat-card.blue{border-top:3px solid var(--blue);}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:28px;}
+.stat-label{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:linear-gradient(135deg,#0A0F1E,#1A1F35);}
+thead th{padding:12px 16px;color:rgba(255,255,255,0.85);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+tbody tr:hover{background:#F8FAFC;}
+tbody td{padding:12px 16px;font-size:13px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:#1251A3;}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#166340;}
+.btn-ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--border);}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:#C62828;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-red{background:var(--red-light);color:var(--red);}
+.badge-gold{background:var(--gold-light);color:#E65100;}
+.badge-green{background:var(--green-light);color:var(--green);}
+
+/* WA SUPPLIER CARDS */
+.wa-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;}
+.wa-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.wa-card-head{padding:14px 16px;color:#fff;display:flex;align-items:center;justify-content:space-between;}
+.wa-card-body{padding:14px 16px;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.filter-bar input{padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;min-width:200px;}
+.filter-bar input:focus{border-color:var(--blue);}
+.filter-btn{padding:8px 16px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.modal-head{background:linear-gradient(135deg,#0A0F1E,#1A1F35);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;}
+.modal-head span{color:#fff;font-weight:700;font-size:16px;}
+.modal-body{padding:22px;}
+.modal-body .form-row{margin-bottom:14px;}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+
+/* PDF PREVIEW inside WA modal */
+#pdf-doc{background:#fff;font-family:'Outfit',sans-serif;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">📦</div>
+    <div class="login-title">Inventarliste</div>
+    <div class="login-sub">Bitte anmelden um fortzufahren</div>
+    <div id="login-error">❌ Falscher Benutzername oder Passwort</div>
+    <div class="form-row"><label>Benutzername</label><input id="login-user" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="form-row"><label>Passwort</label><input id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px;padding:13px;" onclick="doLogin()">🔐 Anmelden</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-inner">
+      <div class="logo">📦 Inventar<span>Liste</span></div>
+      <div class="header-right">
+        <span class="user-badge" id="user-badge">👤 Admin</span>
+        <button class="btn-logout" onclick="doLogout()">Abmelden</button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="page-title">📦 Inventarliste</div>
+    <div class="page-sub">Bestand überwachen — direkt per WhatsApp bei Lieferant bestellen</div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-row" id="inv-stats"></div>
+
+    <!-- WA ORDER CARDS -->
+    <div class="wa-cards" id="wa-order-bar"></div>
+
+    <!-- FILTER + ADD -->
+    <div class="filter-bar">
+      <input id="inv-search" placeholder="🔍 Artikel suchen..." oninput="renderInventory()">
+      <button class="filter-btn active" id="filter-all"    onclick="setFilter('all')">Alle</button>
+      <button class="filter-btn"        id="filter-empty"  onclick="setFilter('empty')">🔴 Leer</button>
+      <button class="filter-btn"        id="filter-low"    onclick="setFilter('low')">🟡 Niedrig</button>
+      <button class="filter-btn"        id="filter-ok"     onclick="setFilter('ok')">✅ OK</button>
+      <button class="btn btn-green btn-sm" style="margin-left:auto;" onclick="openAddItem()">+ Artikel hinzufügen</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Artikel</th><th>Lieferant</th><th>Kategorie</th>
+            <th>Einheit</th><th>Bestand</th><th>Bedarf</th><th>Bestellung</th>
+          </tr></thead>
+          <tbody id="inv-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: ADD / EDIT ITEM -->
+<div class="modal-overlay" id="inv-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="inv-modal-title">Artikel</span>
+      <button onclick="closeModal('inv-modal')" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="inv-edit-id">
+      <div class="form-row"><label>Artikel-Name</label><input id="inv-name" placeholder="z.B. Mehl"></div>
+      <div class="form-row"><label>Lieferant</label>
+        <select id="inv-supplier">
+          <option value="Feinfood">Feinfood</option>
+          <option value="Fatih">Fatih</option>
+          <option value="Nacho King">Nacho King</option>
+          <option value="">Sonstige</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label>Kategorie</label><input id="inv-cat" placeholder="z.B. Trockenware"></div>
+        <div class="form-row"><label>Einheit</label><input id="inv-unit" placeholder="kg / Stk / L"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-row"><label>Mindest-Bestand</label><input type="number" id="inv-min" placeholder="10" min="0"></div>
+        <div class="form-row"><label>Aktueller Bestand</label><input type="number" id="inv-cur" placeholder="0" min="0"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('inv-modal')">Abbrechen</button>
+        <button class="btn btn-primary" onclick="saveItem()">💾 Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: WA ORDER -->
+<div class="modal-overlay" id="wa-modal">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-head" id="wa-modal-head">
+      <span id="wa-modal-title">📋 Bestellung senden</span>
+      <button onclick="closeModal('wa-modal')" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <div id="pdf-preview-area" style="background:#e8e8e8;padding:20px;display:flex;justify-content:center;">
+        <div id="pdf-doc" style="background:#fff;width:100%;max-width:560px;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,0.15);overflow:hidden;"></div>
+      </div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">WhatsApp Nummer</label>
+          <div style="display:flex;gap:8px;">
+            <input id="wa-phone-input" type="tel" placeholder="491749127008" style="flex:1;">
+            <button class="btn btn-ghost btn-sm" onclick="saveSupplierPhone()">💾 Speichern</button>
+          </div>
+          <div id="wa-phone-saved" style="font-size:11px;color:var(--green);margin-top:4px;display:none;">✅ Gespeichert</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="closeModal('wa-modal')">Abbrechen</button>
+          <button class="btn btn-red" style="flex:1;justify-content:center;" onclick="downloadOrderPDF()">📄 PDF herunterladen</button>
+          <button class="btn" style="background:#25D366;color:#fff;font-weight:700;flex:1;justify-content:center;" onclick="openWhatsApp()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.1.546 4.07 1.5 5.785L0 24l6.389-1.674A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.796 9.796 0 01-5.003-1.371l-.36-.213-3.714.974.992-3.62-.234-.373A9.77 9.77 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>
+            WhatsApp öffnen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────
+const KEYS = { inv:'inv_items', phones:'inv_phones', users:'inv_users' };
+function load(k){ try{ return JSON.parse(localStorage.getItem(k))||null; }catch{ return null; } }
+function save(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
+
+const DEFAULT_USERS = [
+  { id:1, username:'admin',   password:'roostersindlingen123',   name:'Admin'   },
+  { id:2, username:'manager', password:'roostersindlingen123', name:'Manager' }
+];
+function getUsers(){ return load(KEYS.users)||DEFAULT_USERS; }
+
+const SUPPLIER_INFO = {
+  'Fatih':     { icon:'🥩', color:'#E53935', days:['Mo','Mi','Fr'], daysLabel:'Mo · Mi · Fr' },
+  'Nacho King':{ icon:'🍔', color:'#FF6F00', days:['Di','Do','Sa'], daysLabel:'Di · Do · Sa' },
+  'Feinfood':  { icon:'🧊', color:'#1565C0', days:['Mo','Di','Mi','Do','Fr'], daysLabel:'Mo–Fr' }
+};
+
+const DEFAULT_INV = [
+  // ══ FATIH ══════════════════════════════════════════
+  {id:50,name:'Hähnchen Brust',cat:'Fatih',unit:'kg',min:10,cur:0,bedarf:0,supplier:'Fatih'},
+  {id:51,name:'Hähnchen Flügel',cat:'Fatih',unit:'kg',min:10,cur:0,bedarf:0,supplier:'Fatih'},
+  {id:52,name:'Ganz Hähnchen',cat:'Fatih',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Fatih'},
+  // ══ NACHO KING ═════════════════════════════════════
+  {id:60,name:'Halal Hamburger RM 50x100g',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:61,name:'Mozzerela Sticks Primo, Salomon 1kg',cat:'Nacho King',unit:'kg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:62,name:'Chilli Cheese Nuggets 1kg',cat:'Nacho King',unit:'kg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:63,name:'Onion Rings Beer battered 1kg',cat:'Nacho King',unit:'kg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:64,name:'SüßKartoffel',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:65,name:'Twister',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:66,name:'Wedges',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:67,name:'Veggie Burger',cat:'Nacho King',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:68,name:'Pommes',cat:'Nacho King',unit:'kg',min:10,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:69,name:'Hamburger Brötchen klein 100mm',cat:'Nacho King',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:70,name:'Panini',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:71,name:'Weizentortilla Wrap Brot',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:72,name:'Cheddar Scheiben',cat:'Nacho King',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:73,name:'ERL Cheesecake Caramel',cat:'Nacho King',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:74,name:'Bulls Eye BBQ Sauce',cat:'Nacho King',unit:'Fl',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:75,name:'Hamburger Gurken',cat:'Nacho King',unit:'Gl',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:76,name:'Mini Tiramisu',cat:'Nacho King',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:77,name:'Churros',cat:'Nacho King',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:78,name:'Double Chocolatecake',cat:'Nacho King',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:79,name:'Homann Salat Mayonaise 10kg',cat:'Nacho King',unit:'Eimer',min:2,cur:0,bedarf:0,supplier:'Nacho King'},
+  {id:80,name:'Pinata Cheese Sauce',cat:'Nacho King',unit:'Fl',min:3,cur:0,bedarf:0,supplier:'Nacho King'},
+  // ══ FEINFOOD — Tiefkühl ════════════════════════════
+  {id:101,name:'Chicken Nuggets Halal 1kg (46-50 Stk)',cat:'Tiefkühl',unit:'kg',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:102,name:'McCain Rosti Ecken 2,5kg',cat:'Tiefkühl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:103,name:'Crispy Chicken Burger Halal 1,5kg',cat:'Tiefkühl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:104,name:'Red Hot Popper',cat:'Tiefkühl',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:105,name:'Bacon',cat:'Tiefkühl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:106,name:'Maiskolben',cat:'Tiefkühl',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:107,name:'Butter Portion',cat:'Tiefkühl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:108,name:'Fisch 100g',cat:'Tiefkühl',unit:'Stk',min:10,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:109,name:'Schrimps TK 1kg',cat:'Tiefkühl',unit:'kg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Milchwaren ──────────────────────────────────────
+  {id:201,name:'Cole Slow 3kg',cat:'Milchwaren',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:202,name:'Morzzerella Block',cat:'Milchwaren',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:203,name:'Ceaser Käse',cat:'Milchwaren',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:204,name:'Schaf Käse',cat:'Milchwaren',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:205,name:'Mini Mozzerella',cat:'Milchwaren',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:206,name:'Jogurt 1kg',cat:'Milchwaren',unit:'kg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Mehl & Gewürze ──────────────────────────────────
+  {id:301,name:'WeizenMehl',cat:'Mehl',unit:'kg',min:10,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:302,name:'Rooster Mehl',cat:'Mehl',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:303,name:'Rooster Hotwings Mehl',cat:'Mehl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:304,name:'Rooster Chill Mehl',cat:'Mehl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:305,name:'Rooster Piri Mild',cat:'Mehl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:306,name:'Rooster Piri Scharf',cat:'Mehl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:307,name:'Rooster Piri Sehr Scharf',cat:'Mehl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:308,name:'Tandoori Masala',cat:'Mehl',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:309,name:'MilkShake Pulver',cat:'Mehl',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Verpackung ──────────────────────────────────────
+  {id:401,name:'Hamburger Box Klein',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:402,name:'Hamburger Box Einzel',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:403,name:'Hamburger Box Menü',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:404,name:'Rooster Tragetasche',cat:'Verpackung',unit:'Stk',min:50,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:405,name:'Rooster Boat Tray',cat:'Verpackung',unit:'Stk',min:50,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:406,name:'Rooster Papier',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:407,name:'Rooster Bucket',cat:'Verpackung',unit:'Stk',min:50,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:408,name:'Plastic Tüten',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:409,name:'Faltenbeutel',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:410,name:'Hänchenbeutel',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:411,name:'Bowl Schale',cat:'Verpackung',unit:'Stk',min:50,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:412,name:'Bowl Decke',cat:'Verpackung',unit:'Stk',min:50,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:413,name:'Gabel',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:414,name:'FeineKostbecher',cat:'Verpackung',unit:'Stk',min:50,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:415,name:'Rooster Becher',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:416,name:'Rooster Becher Deckel',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:417,name:'Wrap Papier weiß',cat:'Verpackung',unit:'Stk',min:100,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Non-Food ────────────────────────────────────────
+  {id:501,name:'Drucker Papier (jeweils 5stk)',cat:'Non-Food',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:502,name:'Ec-Gerät Papier (jeweils 5stk)',cat:'Non-Food',unit:'Pkg',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:503,name:'Rooster T-Shirt S',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:504,name:'Rooster T-Shirt M',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:505,name:'Rooster T-Shirt L',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:506,name:'Rooster T-Shirt XL',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:507,name:'Rooster Polo Shirt S',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:508,name:'Rooster Polo Shirt M',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:509,name:'Rooster Polo Shirt L',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:510,name:'Rooster Sweatshirt S',cat:'Non-Food',unit:'Stk',min:1,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:511,name:'Rooster Sweatshirt M',cat:'Non-Food',unit:'Stk',min:1,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:512,name:'Rooster Sweatshirt L',cat:'Non-Food',unit:'Stk',min:1,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:513,name:'Rooster Kappe',cat:'Non-Food',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Reinigungsmittel ────────────────────────────────
+  {id:601,name:'Faltenhandtücher',cat:'Reinigung',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:602,name:'Servietten',cat:'Reinigung',unit:'Pkg',min:10,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:603,name:'Handschuhe',cat:'Reinigung',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:604,name:'Feuchtetücher',cat:'Reinigung',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:605,name:'Fett Löser',cat:'Reinigung',unit:'Fl',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:606,name:'Grill Reiniger',cat:'Reinigung',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:607,name:'Bodenreiniger',cat:'Reinigung',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:608,name:'Müllsacke',cat:'Reinigung',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:609,name:'Allzwecktücher',cat:'Reinigung',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:610,name:'KüchenRolle',cat:'Reinigung',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:611,name:'WC-Toilettepapier',cat:'Reinigung',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:612,name:'Fritteusen Filter',cat:'Reinigung',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:613,name:'Frischhaltefolie',cat:'Reinigung',unit:'Stk',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Saucen & Dressings ──────────────────────────────
+  {id:701,name:'Ketchup Portionbeutel',cat:'Saucen',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:702,name:'Mayonaise Portionbeutel',cat:'Saucen',unit:'Pkg',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:703,name:'Burger Dressing P&W 900ml',cat:'Saucen',unit:'Fl',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:704,name:'Ketchup 10kg',cat:'Saucen',unit:'Eimer',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:705,name:'Heinz Sweet & Sour Dip',cat:'Saucen',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:706,name:'Heinz BBQ Dip',cat:'Saucen',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:707,name:'Heinz Mango Curry Dip',cat:'Saucen',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:708,name:'Heinz Garlic Dip',cat:'Saucen',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:709,name:'Salat Honig & Senf Dressing 75ml',cat:'Saucen',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:710,name:'Salat Jogurt Dressing 75ml',cat:'Saucen',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:711,name:'Salat Balsamico Dressing 75ml',cat:'Saucen',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:712,name:'Salat Essig Öl Dressing 75ml',cat:'Saucen',unit:'Stk',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:713,name:'Milkshake Soße Schokolade',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:714,name:'Milkshake Soße Vanille',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:715,name:'Milkshake Soße IceCoffee',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:716,name:'Milkshake Soße Kirsche',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:717,name:'Milkshake Soße Karamell',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:718,name:'Milkshake Soße Erdbeere',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:719,name:'Milkshake Soße Phirsch Maracuja',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:720,name:'Milkshake Soße Waldbeere',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:721,name:'Guacamole Dip (Mexican)',cat:'Saucen',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:722,name:'Salsa Cheese Dip (Mexican)',cat:'Saucen',unit:'Stk',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:723,name:'Sour Cream 875ml',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:724,name:'Paprika Frischkäse 875ml',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:725,name:'Honig Senf Dressing 875ml',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:726,name:'Pesto alla 190g',cat:'Saucen',unit:'Gl',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:727,name:'Sweet Chilli Sauce 650ml',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:728,name:'Thousand Island 875ml',cat:'Saucen',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  // ── Trockenwaren ────────────────────────────────────
+  {id:801,name:'Tafelessig',cat:'Trockenwaren',unit:'Fl',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:802,name:'Gemüsemais 2650ml',cat:'Trockenwaren',unit:'Dose',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:803,name:'Kidney Bohnen 2650ml',cat:'Trockenwaren',unit:'Dose',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:804,name:'Schwarze Oliven 935ml',cat:'Trockenwaren',unit:'Dose',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:805,name:'Tunfisch',cat:'Trockenwaren',unit:'Dose',min:5,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:806,name:'Croutons Kräuter 500g',cat:'Trockenwaren',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:807,name:'Zitrone Säure 0,5l',cat:'Trockenwaren',unit:'Fl',min:2,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:808,name:'Honig Halal 550g',cat:'Trockenwaren',unit:'Gl',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:809,name:'Bunte Eier',cat:'Trockenwaren',unit:'Stk',min:30,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:810,name:'Sliced Jalapenos',cat:'Trockenwaren',unit:'Gl',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+  {id:811,name:'Pommes-Frites-Salz',cat:'Trockenwaren',unit:'Pkg',min:3,cur:0,bedarf:0,supplier:'Feinfood'},
+];
+
+function getInventory(){ return load(KEYS.inv)||DEFAULT_INV; }
+function getPhones(){ return load(KEYS.phones)||{}; }
+function savePhones(p){ save(KEYS.phones,p); }
+
+// ── AUTH ─────────────────────────────────────────────────────────
+let currentUser = null;
+
+function doLogin(){
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const user = getUsers().find(x=>x.username===u&&x.password===p);
+  if(!user){
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-pass').value='';
+    return;
+  }
+  currentUser = user;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-badge').textContent='👤 '+user.name;
+  renderInventory();
+  renderWaBar();
+  renderStats();
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-error').style.display='none';
+}
+
+// ── FILTER ───────────────────────────────────────────────────────
+let activeFilter = 'all';
+function setFilter(f){
+  activeFilter=f;
+  ['all','empty','low','ok'].forEach(x=>{
+    document.getElementById('filter-'+x).classList.toggle('active',x===f);
+  });
+  renderInventory();
+}
+
+// ── RENDER STATS ─────────────────────────────────────────────────
+function renderStats(){
+  const inv        = getInventory();
+  const total      = inv.length;
+  const leer       = inv.filter(i=>i.cur===0).length;
+  const zuBestellen= inv.filter(i=>(i.bedarf||0)>i.cur&&i.cur>0).length;
+  const ok         = inv.filter(i=>i.cur>0&&(i.bedarf===0||i.cur>=(i.bedarf||0))).length;
+  const zuBest     = inv.filter(i=>(i.bedarf||0)>i.cur).length;
+  document.getElementById('inv-stats').innerHTML=`
+    <div class="stat-card blue"><div class="stat-val">${total}</div><div class="stat-label">Artikel gesamt</div></div>
+    <div class="stat-card red"><div class="stat-val">${leer}</div><div class="stat-label">🔴 Leer (Bestand = 0)</div></div>
+    <div class="stat-card gold"><div class="stat-val">${zuBestellen}</div><div class="stat-label">🟡 Zu wenig (Bedarf > Bestand)</div></div>
+    <div class="stat-card green"><div class="stat-val">${ok}</div><div class="stat-label">✅ Genug vorhanden</div></div>`;
+}
+
+// ── RENDER INVENTORY TABLE ────────────────────────────────────────
+function renderInventory(){
+  const inv    = getInventory();
+  const search = (document.getElementById('inv-search')?.value||'').toLowerCase();
+  let items = inv.filter(i=>{
+    if(activeFilter==='empty' && i.cur!==0) return false; // Leer = Bestand 0
+    if(activeFilter==='low'   && !((i.bedarf||0)>i.cur&&i.cur>0)) return false;
+    if(activeFilter==='ok'    && ((i.bedarf||0)>i.cur||i.cur===0)) return false;
+    if(search && !i.name.toLowerCase().includes(search) && !i.cat.toLowerCase().includes(search) && !i.supplier.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  // Group by supplier
+  const suppliers = ['Fatih','Nacho King','Feinfood'];
+  const si_colors = {'Fatih':'#E53935','Nacho King':'#FF6F00','Feinfood':'#1565C0'};
+  const si_icons  = {'Fatih':'🥩','Nacho King':'🍔','Feinfood':'🧊'};
+
+  let html = '';
+  let totalShown = 0;
+
+  suppliers.forEach(sup => {
+    const supItems = items.filter(i => i.supplier === sup);
+    if(supItems.length === 0) return;
+
+    const col = si_colors[sup] || '#555';
+    const ico = si_icons[sup]  || '📦';
+
+    // Supplier separator row
+    html += `<tr>
+      <td colspan="7" style="background:${col}18;padding:10px 16px;border-bottom:2px solid ${col}40;">
+        <span style="background:${col};color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:800;">${ico} ${sup}</span>
+        <span style="font-size:11px;color:${col};font-weight:700;margin-left:10px;">${supItems.length} Artikel</span>
+      </td>
+    </tr>`;
+
+    supItems.forEach((i, idx) => {
+      const isEmpty = i.cur===0;
+      const isLow   = i.cur>0&&i.cur<i.min;
+      const statusHtml = isEmpty
+        ? `<span class="badge badge-red">🔴 Leer</span>`
+        : isLow
+        ? `<span class="badge badge-gold">🟡 Niedrig</span>`
+        : `<span class="badge badge-green">✅ OK</span>`;
+      const curStyle = isEmpty?'color:var(--red);font-weight:800;':isLow?'color:#E65100;font-weight:700;':'color:var(--green);font-weight:700;';
+      html += `<tr style="background:${idx%2===0?'#fff':'#f8fafc'}">
+        <td style="font-weight:600;padding-left:24px;">${i.name}</td>
+        <td><span style="background:${col}18;color:${col};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${ico} ${sup}</span></td>
+        <td style="color:var(--muted);font-size:12px;">${i.cat||'—'}</td>
+        <td style="color:var(--muted);">${i.unit}</td>
+        <td style="text-align:center;">
+          <input type="number" min="0" value="${i.cur}"
+            onchange="updateBestand(${i.id},this.value)"
+            style="width:64px;text-align:center;padding:5px 6px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:${isEmpty?'var(--red)':isLow?'#E65100':'var(--green)'};">
+        </td>
+        <td style="text-align:center;">
+          <input type="number" min="0" value="${i.bedarf||0}"
+            onchange="updateBedarf(${i.id},this.value)"
+            style="width:64px;text-align:center;padding:5px 6px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--blue);">
+        </td>
+        <td style="text-align:center;font-weight:800;font-size:14px;color:${(i.bedarf||0)>i.cur?'var(--red)':'var(--green)'};">
+          ${(i.bedarf||0)>i.cur ? ((i.bedarf||0)-i.cur)+' '+i.unit : '✅'}
+        </td>
+      </tr>`;
+      totalShown++;
+    });
+  });
+
+  // Items with no supplier or unknown supplier
+  const otherItems = items.filter(i => !suppliers.includes(i.supplier));
+  if(otherItems.length > 0){
+    html += `<tr><td colspan="7" style="background:#f1f5f9;padding:10px 16px;border-bottom:2px solid #e2e8f0;">
+      <span style="background:#555;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:800;">📦 Sonstige</span>
+    </td></tr>`;
+    otherItems.forEach((i,idx)=>{
+      const isEmpty = i.cur===0;
+      const isLow   = i.cur>0&&i.cur<i.min;
+      const statusHtml = isEmpty?`<span class="badge badge-red">🔴 Leer</span>`:isLow?`<span class="badge badge-gold">🟡 Niedrig</span>`:`<span class="badge badge-green">✅ OK</span>`;
+      const curStyle = isEmpty?'color:var(--red);font-weight:800;':isLow?'color:#E65100;font-weight:700;':'color:var(--green);font-weight:700;';
+      html += `<tr style="background:${idx%2===0?'#fff':'#f8fafc'}">
+        <td style="font-weight:600;padding-left:24px;">${i.name}</td>
+        <td>—</td><td style="color:var(--muted);font-size:12px;">${i.cat||'—'}</td>
+        <td style="color:var(--muted);">${i.unit}</td>
+        <td style="text-align:center;">
+          <input type="number" min="0" value="${i.cur}"
+            onchange="updateBestand(${i.id},this.value)"
+            style="width:64px;text-align:center;padding:5px 6px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;">
+        </td>
+        <td style="text-align:center;">
+          <input type="number" min="0" value="${i.bedarf||0}"
+            onchange="updateBedarf(${i.id},this.value)"
+            style="width:64px;text-align:center;padding:5px 6px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--blue);">
+        </td>
+        <td style="text-align:center;font-weight:800;font-size:14px;color:${(i.bedarf||0)>i.cur?'var(--red)':'var(--green)'};">
+          ${(i.bedarf||0)>i.cur ? ((i.bedarf||0)-i.cur)+' '+i.unit : '✅'}
+        </td>
+      </tr>`;
+      totalShown++;
+    });
+  }
+
+  document.getElementById('inv-body').innerHTML = totalShown === 0
+    ? `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">Keine Artikel gefunden</td></tr>`
+    : html;
+
+  renderStats();
+}
+
+// ── WA ORDER CARDS ────────────────────────────────────────────────
+function renderWaBar(){
+  const inv    = getInventory();
+  const phones = getPhones();
+  const suppliers = ['Fatih','Nacho King','Feinfood'];
+  document.getElementById('wa-order-bar').innerHTML = suppliers.map(sup=>{
+    const si        = SUPPLIER_INFO[sup];
+    const lowItems  = inv.filter(i=>i.supplier===sup&&(i.bedarf||0)>i.cur);
+    const hasOrders = lowItems.length>0;
+    const phone     = phones[sup]||'';
+    return `<div class="wa-card">
+      <div class="wa-card-head" style="background:${si.color};">
+        <span style="font-weight:700;font-size:15px;">${si.icon} ${sup}</span>
+        <span style="font-size:11px;opacity:0.85;">📅 ${si.daysLabel}</span>
+      </div>
+      <div class="wa-card-body">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+          ${hasOrders
+            ? `<span style="color:var(--red);font-weight:700;">⚠️ ${lowItems.length} Artikel zu bestellen</span>`
+            : `<span style="color:var(--green);font-weight:700;">✅ Alles in Ordnung</span>`}
+        </div>
+        ${phone?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">📱 ${phone}</div>`:''}
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button onclick="openWaModal('${sup}')" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;font-size:11px;">
+            📄 PDF
+          </button>
+          <button onclick="directWA('${sup}')" class="btn btn-sm" style="flex:1;justify-content:center;background:#25D366;color:#fff;font-size:11px;">
+            📱 WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ITEM CRUD ─────────────────────────────────────────────────────
+function openAddItem(){
+  document.getElementById('inv-modal-title').textContent='➕ Artikel hinzufügen';
+  document.getElementById('inv-edit-id').value='';
+  document.getElementById('inv-name').value='';
+  document.getElementById('inv-supplier').value='Feinfood';
+  document.getElementById('inv-cat').value='';
+  document.getElementById('inv-unit').value='';
+  document.getElementById('inv-min').value='';
+  document.getElementById('inv-cur').value='';
+  document.getElementById('inv-modal').classList.add('open');
+}
+
+function editItem(id){
+  const item = getInventory().find(i=>i.id===id);
+  if(!item) return;
+  document.getElementById('inv-modal-title').textContent='✏️ Artikel bearbeiten';
+  document.getElementById('inv-edit-id').value=id;
+  document.getElementById('inv-name').value=item.name;
+  document.getElementById('inv-supplier').value=item.supplier;
+  document.getElementById('inv-cat').value=item.cat;
+  document.getElementById('inv-unit').value=item.unit;
+  document.getElementById('inv-min').value=item.min;
+  document.getElementById('inv-cur').value=item.cur;
+  document.getElementById('inv-modal').classList.add('open');
+}
+
+function saveItem(){
+  const id   = document.getElementById('inv-edit-id').value;
+  const name = document.getElementById('inv-name').value.trim();
+  if(!name){ alert('Bitte Artikel-Name eingeben'); return; }
+  const item = {
+    id:       id ? parseInt(id) : Date.now(),
+    name,
+    supplier: document.getElementById('inv-supplier').value,
+    cat:      document.getElementById('inv-cat').value.trim(),
+    unit:     document.getElementById('inv-unit').value.trim()||'Stk',
+    min:      parseFloat(document.getElementById('inv-min').value)||0,
+    cur:      parseFloat(document.getElementById('inv-cur').value)||0,
+  };
+  let inv = getInventory();
+  if(id){ inv = inv.map(i=>i.id===item.id?item:i); }
+  else  { inv.push(item); }
+  save(KEYS.inv, inv);
+  closeModal('inv-modal');
+  renderInventory();
+  renderWaBar();
+}
+
+function deleteItem(id){
+  if(!confirm('Artikel wirklich löschen?')) return;
+  save(KEYS.inv, getInventory().filter(i=>i.id!==id));
+  renderInventory();
+  renderWaBar();
+}
+
+function quickUpdate(id){
+  const item = getInventory().find(i=>i.id===id);
+  if(!item) return;
+  const val = prompt(`📝 Aktueller Bestand für "${item.name}" (${item.unit}):`, item.cur);
+  if(val===null) return;
+  const num = parseFloat(val);
+  if(isNaN(num)||num<0){ alert('Ungültige Zahl'); return; }
+  const inv = getInventory().map(i=>i.id===id?{...i,cur:num}:i);
+  save(KEYS.inv, inv);
+  renderInventory();
+  renderWaBar();
+}
+
+// ── WHATSAPP ORDER ────────────────────────────────────────────────
+let _currentSupplier = null;
+
+function openWaModal(supplier){
+  _currentSupplier = supplier;
+  const si     = SUPPLIER_INFO[supplier]||{icon:'📦',color:'#25D366'};
+  const phones = getPhones();
+  document.getElementById('wa-modal-head').style.background=`linear-gradient(135deg,${si.color},${si.color}cc)`;
+  document.getElementById('wa-modal-title').textContent=`${si.icon} Bestellung an ${supplier}`;
+  document.getElementById('wa-phone-input').value=phones[supplier]||'';
+  document.getElementById('wa-phone-saved').style.display='none';
+  renderPDFPreview(supplier);
+  document.getElementById('wa-modal').classList.add('open');
+}
+
+function renderPDFPreview(supplier){
+  const inv      = getInventory();
+  const si       = SUPPLIER_INFO[supplier]||{icon:'📦',color:'#333'};
+  const lowItems = inv.filter(i=>i.supplier===supplier&&(i.bedarf||0)>i.cur);
+  const dateStr  = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  let rows = lowItems.map((item,idx)=>{
+    const isEmpty  = item.cur===0;
+    const bg       = idx%2===0?'#fff':'#f8fafc';
+    const status   = isEmpty?'🔴 LEER':'🟡 NIEDRIG';
+    const badgeBg  = isEmpty?'#FEE2E2':'#FEF9C3';
+    const badgeTxt = isEmpty?'#DC2626':'#92400E';
+    const needed   = Math.max(0,(item.bedarf||0)-item.cur);
+    return `<tr style="background:${bg}">
+      <td style="padding:9px 14px;font-weight:600;color:#1e293b;border-bottom:1px solid #f1f5f9;">${item.name}</td>
+      <td style="padding:9px 14px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9;">${item.cur} ${item.unit}</td>
+      <td style="padding:9px 14px;text-align:center;font-weight:700;color:#e53935;border-bottom:1px solid #f1f5f9;">${needed} ${item.unit}</td>
+      <td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f1f5f9;">
+        <span style="background:${badgeBg};color:${badgeTxt};padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;">${status}</span>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pdf-doc').innerHTML = `
+    <div style="background:${si.color};color:#fff;padding:24px 28px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-weight:800;font-size:18px;">📦 Inventarliste</span>
+        <span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:6px;font-size:12px;">📅 ${dateStr}</span>
+      </div>
+      <div style="font-size:26px;font-weight:900;">${si.icon} Bestellung — ${supplier}</div>
+      <div style="font-size:12px;opacity:0.8;margin-top:4px;">Automatisch generierte Bestellliste</div>
+      <div style="display:flex;gap:12px;margin-top:16px;">
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;text-align:center;flex:1;">
+          <div style="font-size:22px;font-weight:900;">${lowItems.length}</div>
+          <div style="font-size:10px;opacity:0.85;">Artikel</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;text-align:center;flex:1;">
+          <div style="font-size:22px;font-weight:900;">${lowItems.filter(i=>i.cur===0).length}</div>
+          <div style="font-size:10px;opacity:0.85;">🔴 Leer</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;text-align:center;flex:1;">
+          <div style="font-size:22px;font-weight:900;">${lowItems.filter(i=>i.cur>0).length}</div>
+          <div style="font-size:10px;opacity:0.85;">🟡 Niedrig</div>
+        </div>
+      </div>
+    </div>
+    ${lowItems.length===0
+      ? `<div style="padding:24px;text-align:center;color:#64748b;">✅ Alles in Ordnung — kein Bedarf</div>`
+      : `<table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="background:${si.color};">
+            <th style="padding:10px 14px;color:#fff;font-size:11px;text-align:left;">Artikel</th>
+            <th style="padding:10px 14px;color:#fff;font-size:11px;text-align:center;">Bestand</th>
+            <th style="padding:10px 14px;color:#fff;font-size:11px;text-align:center;">Benötigt</th>
+            <th style="padding:10px 14px;color:#fff;font-size:11px;text-align:center;">Status</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`}
+    <div style="padding:12px 14px;background:#f8fafc;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between;">
+      <span>Inventarliste • ${dateStr}</span><span>Lieferant: ${supplier}</span>
+    </div>`;
+}
+
+function saveSupplierPhone(){
+  const phones = getPhones();
+  phones[_currentSupplier] = document.getElementById('wa-phone-input').value.replace(/[^\d]/g,'');
+  savePhones(phones);
+  document.getElementById('wa-phone-saved').style.display='block';
+  renderWaBar();
+}
+
+function downloadOrderPDF(){
+  if(!_currentSupplier){ alert('Kein Lieferant ausgewählt!'); return; }
+  const inv     = getInventory();
+  const si      = SUPPLIER_INFO[_currentSupplier]||{icon:'📦',color:'#333'};
+  const items   = inv.filter(i=>i.supplier===_currentSupplier&&(i.bedarf||0)>i.cur);
+  const dateStr = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  if(items.length===0){ alert('Keine Artikel zu bestellen für '+_currentSupplier); return; }
+
+  let rows = items.map((item,idx)=>{
+    const bg         = idx%2===0?'#ffffff':'#f8fafc';
+    const bestellung = (item.bedarf||0) - item.cur;
+    const isEmpty    = item.cur===0;
+    const badgeBg    = isEmpty?'#FEE2E2':'#FEF9C3';
+    const badgeTxt   = isEmpty?'#DC2626':'#92400E';
+    const status     = isEmpty?'🔴 LEER':'🟡 NIEDRIG';
+    return `<tr style="background:${bg}">
+      <td style="padding:10px 14px;font-weight:600;color:#1e293b;border-bottom:1px solid #f1f5f9;">${item.name}</td>
+      <td style="padding:10px 14px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9;">${item.cur} ${item.unit}</td>
+      <td style="padding:10px 14px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9;">${item.bedarf||0} ${item.unit}</td>
+      <td style="padding:10px 14px;text-align:center;font-weight:800;color:#E53935;border-bottom:1px solid #f1f5f9;">${bestellung} ${item.unit}</td>
+      <td style="padding:10px 14px;text-align:center;border-bottom:1px solid #f1f5f9;">
+        <span style="background:${badgeBg};color:${badgeTxt};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${status}</span>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:Arial,sans-serif;background:#f1f5f9;}
+    .wrap{max-width:760px;margin:24px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);}
+    .hd{background:${si.color};color:#fff;padding:28px 32px;}
+    .hd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .logo{font-size:18px;font-weight:900;}
+    .date{background:rgba(255,255,255,0.2);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;}
+    .title{font-size:28px;font-weight:900;margin-bottom:4px;}
+    .sub{font-size:12px;opacity:0.8;}
+    .stats{display:flex;gap:12px;margin-top:16px;}
+    .stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;text-align:center;flex:1;}
+    .sv{font-size:22px;font-weight:900;}.sl{font-size:10px;opacity:0.85;margin-top:2px;}
+    .body{padding:24px 32px;}
+    .sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:12px;}
+    table{width:100%;border-collapse:collapse;}
+    thead tr{background:${si.color};}
+    thead th{padding:10px 14px;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;text-align:left;white-space:nowrap;}
+    thead th:not(:first-child){text-align:center;}
+    .ft{padding:16px 32px;border-top:2px solid #f1f5f9;display:flex;justify-content:space-between;}
+    .ft-txt{font-size:11px;color:#94a3b8;}
+    @media print{body{background:#fff;}.wrap{box-shadow:none;margin:0;border-radius:0;max-width:100%;}}
+  </style></head><body>
+  <div class="wrap">
+    <div class="hd">
+      <div class="hd-top">
+        <div class="logo">📦 Inventarliste</div>
+        <div class="date">📅 ${dateStr}</div>
+      </div>
+      <div class="title">${si.icon} Bestellung — ${_currentSupplier}</div>
+      <div class="sub">Automatisch generierte Bestellliste</div>
+      <div class="stats">
+        <div class="stat"><div class="sv">${items.length}</div><div class="sl">Artikel gesamt</div></div>
+        <div class="stat"><div class="sv">${items.filter(i=>i.cur===0).length}</div><div class="sl">🔴 Leer</div></div>
+        <div class="stat"><div class="sv">${items.filter(i=>i.cur>0).length}</div><div class="sl">🟡 Niedrig</div></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="sec">Bestellliste</div>
+      <table>
+        <thead><tr>
+          <th>Artikel</th>
+          <th>Bestand</th>
+          <th>Bedarf</th>
+          <th>Bestellung</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="ft">
+      <div class="ft-txt">Inventarliste • ${dateStr}</div>
+      <div class="ft-txt">Lieferant: ${_currentSupplier}</div>
+    </div>
+  </div>
+  </body></html>`;
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'Bestellung_'+_currentSupplier.replace(/ /g,'_')+'_'+dateStr.replace(/\./g,'-')+'.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function openWhatsApp(){
+  if(!_currentSupplier){ alert('Kein Lieferant ausgewählt!'); return; }
+
+  // Save phone number if entered
+  const inputPhone = (document.getElementById('wa-phone-input').value||'').replace(/[^\d]/g,'');
+  if(inputPhone){
+    const p = getPhones();
+    p[_currentSupplier] = inputPhone;
+    savePhones(p);
+  }
+
+  const phones = getPhones();
+  const phone  = (phones[_currentSupplier]||'').replace(/[^\d]/g,'');
+  if(!phone){
+    alert('Bitte WhatsApp Nummer eingeben und auf 💾 Speichern drücken!');
+    return;
+  }
+
+  const inv     = getInventory();
+  const si      = SUPPLIER_INFO[_currentSupplier]||{icon:'📦'};
+  const items   = inv.filter(i=>i.supplier===_currentSupplier&&(i.bedarf||0)>i.cur);
+  const dateStr = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  if(items.length===0){
+    alert('✅ Alles in Ordnung — keine Bestellung nötig für '+_currentSupplier);
+    return;
+  }
+
+  let msg = si.icon+' *Bestellung '+_currentSupplier+'* — '+dateStr+'\n';
+  msg += '━━━━━━━━━━━━━━━━━━━━\n';
+  items.forEach(i=>{
+    const bestellen = (i.bedarf||0) - i.cur;
+    msg += '📦 '+i.name+' — Bestand: '+i.cur+' '+i.unit+' | Bedarf: '+(i.bedarf||0)+' '+i.unit+' | Bestellen: '+bestellen+' '+i.unit+'\n';
+  });
+  msg += '━━━━━━━━━━━━━━━━━━━━\n';
+  msg += '📦 Gesamt: '+items.length+' Artikel\nBitte Eingang bestätigen. Danke! 🙏';
+
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+  closeModal('wa-modal');
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function updateBestand(id, val){
+  const num = parseFloat(val);
+  if(isNaN(num)||num<0) return;
+  const inv = getInventory().map(i=>i.id===id?{...i,cur:num}:i);
+  save(KEYS.inv, inv);
+  renderInventory();
+  renderStats();
+  renderWaBar();
+}
+
+function updateBedarf(id, val){
+  const num = parseFloat(val);
+  if(isNaN(num)||num<0) return;
+  const inv = getInventory().map(i=>i.id===id?{...i,bedarf:num}:i);
+  save(KEYS.inv, inv);
+  renderInventory();
+  renderStats();
+  renderWaBar();
+}
+
+function directWA(supplier){
+  const phones = getPhones();
+  let phone = (phones[supplier]||'').replace(/[^\d]/g,'');
+
+  // If no phone saved yet — ask once, save it
+  if(!phone){
+    const entered = prompt('📱 WhatsApp Nummer für ' + supplier + ' eingeben:\n(Ländercode + Nummer, z.B. 491751234567)');
+    if(!entered) return;
+    phone = entered.replace(/[^\d]/g,'');
+    if(!phone){ alert('Ungültige Nummer!'); return; }
+    const p = getPhones();
+    p[supplier] = phone;
+    savePhones(p);
+    renderWaBar();
+  }
+
+  const inv      = getInventory();
+  const si       = SUPPLIER_INFO[supplier]||{icon:'📦'};
+  const items    = inv.filter(i=>i.supplier===supplier&&(i.bedarf||0)>i.cur);
+  const dateStr  = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  if(items.length===0){
+    alert('✅ Alles in Ordnung — keine Bestellung nötig für '+supplier);
+    return;
+  }
+
+  let msg = si.icon+' *Bestellung '+supplier+'* — '+dateStr+'\n';
+  msg += '━━━━━━━━━━━━━━━━━━━━\n';
+  items.forEach(i=>{
+    const bestellung = (i.bedarf||0) - i.cur;
+    msg += '📦 '+i.name+' — Bestand: '+i.cur+' '+i.unit+' | Bedarf: '+(i.bedarf||0)+' '+i.unit+' | Bestellen: '+bestellung+' '+i.unit+'\n';
+  });
+  msg += '━━━━━━━━━━━━━━━━━━━━\n';
+  msg += '📦 Gesamt: '+items.length+' Artikel\nBitte Eingang bestätigen. Danke! 🙏';
+
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+</script>
+</body>
+</html>
